@@ -1,6 +1,6 @@
 # ML-on-ultra-low-power-devices
 
-nstallation directory of codecomposer : /home/ganraj/ti/ccs1250 
+Installation directory of codecomposer : /home/ganraj/ti/ccs1250 
 
 0. Look at the section 5 : experimental evaluation in the 1st paper link :  
 
