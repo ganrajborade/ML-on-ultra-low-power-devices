@@ -53,7 +53,7 @@ SO I DONOT KNOW WHAT I DID BUT IT GOT WORKING CORRECTLY : SO BASICALLY I USED TH
 ---> last thing which I did today is about the suming of the elements of the array.  
 
 
-29/11/23 :
+## 29/11/23 DIVISION AND MULTIPLICATION OPERATION DONE:
 
     TASSEL_2 (Clock Source):
         TASSEL_2 selects SMCLK (Sub-System Master Clock) as the clock source for Timer_A. SMCLK is often derived from the main system clock.
