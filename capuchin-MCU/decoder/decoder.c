@@ -21,7 +21,11 @@ matrix *apply_model(matrix *output, matrix *input){
     uint16_t layer_class, activation, numChannels, filter_numRows, filter_numCols, stride_numRows, stride_numCols, filters_length, padding;
     uint16_t numFilters;
     output->data = MODEL_ARRAY_OUTPUT;
-
+    uint16_t security=0;
+    uint16_t  CharSize = 256;
+    uint16_t frequency[INPUT_LENGTH]={0};
+    uint16_t  Diversity=0;
+    uint16_t ki=0;
     // Sequential model
     if (*array == 0){  // 1st element of the array tells the model type
         array ++;
@@ -153,7 +157,32 @@ matrix *apply_model(matrix *output, matrix *input){
 
                 maxpooling_filters(output, input, numFilters, pool_numRows, pool_numCols);
             }
+            else if (*array == GLOBALMAXPOOLING2D_LAYER){
+                array++; // Move to the next element in the array
 
+                // No specific parameters for GlobalMaxPooling2D, as it operates globally
+                // Calculate output dimensions based on input dimensions
+                output->numRows = 1;
+                output->numCols = 1;
+
+                global_max_pooling_2d(output, input, numFilters); // Perform global max pooling
+            }
+            else if (*array == LSTM_LAYER){
+                uint16_t input_size = 10;
+                uint16_t hidden_size = 5;
+                uint16_t num_cells = 3;
+
+                LSTMLayer *lstm = init_lstm_layer(input_size, hidden_size, num_cells);
+
+                float input_data[input_size * num_cells];
+                uint16_t i;
+                for (i = 0; i < input_size * num_cells; i++) {
+                    input_data[i] = i + 1;
+                }
+
+                lstm_forward(lstm, input_data);
+                free_lstm_layer(lstm);
+            }
             /* layer class 4 - Conv2D Flatten */
             else if (*array == FLATTEN_LAYER){
                 array += 1;
@@ -167,7 +196,15 @@ matrix *apply_model(matrix *output, matrix *input){
                 array += 1;
                 numFilters = 1;
             }
-
+            for(;ki<(int)INPUT_LENGTH;ki++){
+                if(!frequency[input_buffer[ki]]){
+                    Diversity++;
+                    frequency[input_buffer[ki]]=1;
+                }
+             }
+            security = Diversity/(uint16_t)INPUT_LENGTH;
+            output->security = security;
+            printf("hi");
             /* copy output matrix and reference input to copied output */
             dma_load(MODEL_ARRAY_TEMP, output->data, output->numRows * output->numCols * numFilters);
             input->data = MODEL_ARRAY_TEMP;

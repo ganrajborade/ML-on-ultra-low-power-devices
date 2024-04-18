@@ -81,6 +81,83 @@ matrix *maxpooling_filters(matrix *result, matrix *input, uint16_t numFilters, u
     return result;
 }
 
+matrix *global_max_pooling_2d(matrix *result, matrix *input, uint16_t numFilters) {
+    uint16_t filter_length = input->numRows * input->numCols;
+    int16_t *input_data = input->data;
+    int16_t *result_data = result->data;
+    uint16_t i;
+    for (i = 0; i < numFilters; i++) {
+        // Process each channel separately
+        int16_t *channel_data = input_data + i * filter_length;
+        int16_t max_val = INT16_MIN; // Initialize with smallest int16_t value
+
+        // Find the maximum value in the channel
+        uint16_t j;
+        for (j = 0; j < filter_length; j++) {
+            if (channel_data[j] > max_val) {
+                max_val = channel_data[j];
+            }
+        }
+
+        // Store the maximum value in the result matrix
+        result_data[i] = max_val;
+    }
+
+    return result;
+}
+
+LSTMLayer* init_lstm_layer(uint16_t input_size, uint16_t hidden_size, uint16_t num_cells) {
+    LSTMLayer *lstm = malloc(sizeof(LSTMLayer));
+    lstm->input_size = input_size;
+    lstm->hidden_size = hidden_size;
+    lstm->num_cells = num_cells;
+    lstm->cells = malloc(num_cells * sizeof(LSTMCell));
+    uint16_t i ;
+    for (i= 0; i < num_cells; i++) {
+        LSTMCell *cell = &lstm->cells[i];
+        cell->input_gate = malloc(hidden_size * sizeof(float));
+        cell->forget_gate = malloc(hidden_size * sizeof(float));
+        cell->output_gate = malloc(hidden_size * sizeof(float));
+        cell->cell_state = malloc(hidden_size * sizeof(float));
+        cell->hidden_state = malloc(hidden_size * sizeof(float));
+    }
+
+    return lstm;
+}
+
+void lstm_forward(LSTMLayer *lstm, float *input_data) {
+    uint16_t i;
+    for (i = 0; i < lstm->num_cells; i++) {
+        LSTMCell *cell = &lstm->cells[i];
+        uint16_t j;
+        for (j = 0; j < lstm->hidden_size; j++) {
+            cell->input_gate[j] = sigmoid(input_data[j]);
+            cell->forget_gate[j] = sigmoid(input_data[j]);
+            cell->output_gate[j] = sigmoid(input_data[j]);
+            cell->cell_state[j] = tanh(input_data[j]);
+            cell->hidden_state[j] = cell->output_gate[j] * tanh(cell->cell_state[j]);
+        }
+        input_data += lstm->hidden_size;
+    }
+}
+
+void free_lstm_layer(LSTMLayer *lstm) {
+    uint16_t i;
+    for (i = 0; i < lstm->num_cells; i++) {
+        LSTMCell *cell = &lstm->cells[i];
+        free(cell->input_gate);
+        free(cell->forget_gate);
+        free(cell->output_gate);
+        free(cell->cell_state);
+        free(cell->hidden_state);
+    }
+    free(lstm->cells);
+    free(lstm);
+}
+
+float sigmoid(float x) {
+    return 1 / (1 + exp(-x));
+}
 matrix *flatten(matrix* result, matrix *input, uint16_t num_filter){
     /**
      * Implementation of flatten layer for CNN

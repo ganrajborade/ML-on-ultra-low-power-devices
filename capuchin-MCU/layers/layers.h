@@ -16,9 +16,13 @@ matrix *maxpooling(matrix* result, matrix *input, uint16_t pool_numRows, uint16_
 matrix *flatten(matrix* result, matrix *input, uint16_t num_filter);
 matrix *padding_same(matrix *result, matrix *input, matrix *filter, uint16_t stride_numRows, uint16_t stride_numCols);
 matrix *maxpooling_filters(matrix *result, matrix *input, uint16_t numFilters, uint16_t pool_numRows, uint16_t pool_numCols);
+matrix *global_max_pooling_2d(matrix *result, matrix *input, uint16_t numFilters);
 matrix *filters_sum(matrix *result, matrix *input, matrix *filter, uint16_t numChannels, int16_t b, int16_t (*activation)(int16_t, uint16_t), uint16_t precision, uint16_t stride_numRows, uint16_t stride_numCols, uint16_t padding, uint16_t conv_numRows, uint16_t conv_numCols);
 matrix *conv2d(matrix *result, matrix *input, matrix *filter, uint16_t numFilters, uint16_t numChannels, int16_t *b, int16_t (*activation)(int16_t, uint16_t), uint16_t precision, uint16_t stride_numRows, uint16_t stride_numCols, uint16_t padding);
 matrix *apply_leakyrelu(matrix *result, matrix *input, uint16_t precision);
 matrix *dense(matrix *result, matrix *input, matrix *W, matrix *b, int16_t (*activation)(int16_t, uint16_t), uint16_t precision);
 
+LSTMLayer* init_lstm_layer(uint16_t input_size, uint16_t hidden_size, uint16_t num_cells);
+void lstm_forward(LSTMLayer *lstm, float *input_data) ;
+void free_lstm_layer(LSTMLayer *lstm);
 #endif
